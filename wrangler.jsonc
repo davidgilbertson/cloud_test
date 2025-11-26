@@ -1,8 +1,9 @@
 {
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "cloudtest",
+  "main": "worker/index.js",
   "compatibility_date": "2025-11-25",
   "assets": {
     "directory": "dist"
   },
-  "workers_dev": true
 }
