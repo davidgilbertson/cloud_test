@@ -9,6 +9,10 @@ wheels/
 # Virtual environments
 .venv
 
+#Cloudflare stuff
+.wrangler
+.dev.vars*
+
 # Other
 .idea/
 .vscode/
