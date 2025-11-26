@@ -2,8 +2,8 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "cloudtest",
   "main": "worker/index.js",
-  "compatibility_date": "2025-11-25",
+  "compatibility_date": "2025-11-18",
   "assets": {
-    "directory": "dist"
+    "not_found_handling": "single-page-application"
   },
 }
