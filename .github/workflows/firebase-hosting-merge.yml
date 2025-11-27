@@ -21,7 +21,6 @@ jobs:
   deploy_hosting_and_functions:
     runs-on: ubuntu-latest
     env:
-      GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
       PROJECT_ID: dgcloudtest
     steps:
       - uses: actions/checkout@v4
@@ -29,11 +28,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DGCLOUDTEST }}
       - name: Install firebase-tools
         run: npm install -g firebase-tools
-      - name: Write service account key
-        run: |
-          printf "%s" "${{ secrets.FIREBASE_SERVICE_ACCOUNT_DGCLOUDTEST }}" > "$GOOGLE_APPLICATION_CREDENTIALS"
       - name: Install root dependencies
         run: npm ci
       - name: Install functions dependencies
@@ -41,4 +42,6 @@ jobs:
       - name: Build frontend and functions
         run: npm run build:fb
       - name: Deploy Hosting and Functions
+        env:
+          FIREBASE_TOKEN: ${{ steps.auth.outputs.access_token }}
         run: firebase deploy --only hosting,functions --project "$PROJECT_ID"
