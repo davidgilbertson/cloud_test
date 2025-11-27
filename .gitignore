@@ -17,3 +17,7 @@ wheels/
 .idea/
 .vscode/
 node_modules/
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log

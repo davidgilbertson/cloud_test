@@ -89,15 +89,23 @@ function App() {
     setDbLoading(false)
   }
 
+  const origin = document.location.origin
+  if (origin.endsWith('.web.app')) {
+    origin = 'Firebase'
+  } else if (origin.endsWith('.workers.dev')) {
+    origin = 'Cloudflare'
+  }
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 flex items-start justify-center px-6 pt-24">
       <div className="space-y-6 w-full max-w-xl">
         <h1 className="text-4xl font-semibold tracking-tight text-center">
           Test backend response times
         </h1>
+        <p className="text-center text-slate-600">Served from {origin}</p>
+    
         <p className="text-center text-slate-600 min-h-[1.5rem]">
           {hasAction && lastAction !== null
-            ? `${formatElapsed(now - lastAction)} since last action`
+            ? `Idle for: ${formatElapsed(now - lastAction)}`
             : '\u00a0'}
         </p>
 

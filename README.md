@@ -5,6 +5,7 @@ A repo to test Cloudflare and Firebase, including:
 - DB operation times
 
 Cloudflare URL: https://cloudtest.gilbertson-david.workers.dev
+Firebase URL: https://dgcloudtest.web.app
 
 # Frontend
 
@@ -12,4 +13,12 @@ Shared frontend source in `src/`. `index.html` is in the root, so Vite Just Work
 
 # Build
 
-Note that Vite uses the Cloudflare plugin, so `npm run dev` serves the Cloudflare workers too.
+# Dev
+
+## Emulating Cloudflare
+
+`npm run dev:cf` uses Vite (with the Cloudflare plugin) to serve the site and the Workers.
+
+## Emulating Firebase
+
+`npm run dev:fb` builds the functions and frontend code, then runs the Firebase emulator

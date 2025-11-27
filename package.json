@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "deploy": "npm run build && wrangler deploy",
-    "preview": "vite preview"
+    "dev:cf": "vite",
+    "dev:fb": "npm --prefix functions run build && npm run build && firebase emulators:start --only hosting,functions,firestore",
+    "deploy:cf": "npm run build && wrangler deploy",
+    "deploy:fb": "npm run build && firebase deploy --only hosting,functions"
   },
   "dependencies": {
     "react": "^19.2.0",

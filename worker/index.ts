@@ -8,7 +8,6 @@ export class UserData extends DurableObject {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.ctx.blockConcurrencyWhile(async () => {
-      console.log("hi", await ctx.storage.list());
       const data = await this.ctx.storage.get<StoredData>("data");
       if (data) {
         this.data = data;
