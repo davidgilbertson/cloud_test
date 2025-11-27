@@ -21,7 +21,7 @@ jobs:
   deploy_hosting_and_functions:
     runs-on: ubuntu-latest
     env:
-      GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
       PROJECT_ID: dgcloudtest
     steps:
       - uses: actions/checkout@v4
