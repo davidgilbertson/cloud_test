@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "cloudtest",
-  "main": "worker/index.js",
+  "main": "worker/index.ts",
   "compatibility_date": "2025-11-18",
   "assets": {
     "not_found_handling": "single-page-application"

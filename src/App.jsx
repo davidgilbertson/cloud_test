@@ -3,8 +3,13 @@ import './index.css'
 
 function App() {
   const [userId, setUserId] = useState('')
-  const [pingStatus, setPingStatus] = useState('')
-  const [dataStatus, setDataStatus] = useState('')
+  const [pingTimes, setPingTimes] = useState([])
+  const [dbTimes, setDbTimes] = useState([])
+  const [pingLoading, setPingLoading] = useState(false)
+  const [dbLoading, setDbLoading] = useState(false)
+  const [lastAction, setLastAction] = useState(null)
+  const [hasAction, setHasAction] = useState(false)
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
     const ensureUserId = () => {
@@ -21,22 +26,49 @@ function App() {
     setUserId(id)
   }, [])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now())
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const formatElapsed = (ms) => {
+    const safeMs = Math.max(0, ms)
+    const totalSeconds = Math.floor(safeMs / 1000)
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${hours}h:${pad(minutes)}m:${pad(seconds)}s`
+  }
+
   const pingServer = async () => {
-    setPingStatus('...')
+    const timestamp = Date.now()
+    setNow(timestamp)
+    setLastAction(timestamp)
+    setHasAction(true)
+    setPingLoading(true)
     const start = performance.now()
 
     try {
       const res = await fetch('/api/ping')
       await res.json()
       const duration = Math.round(performance.now() - start)
-      setPingStatus(`${duration} ms`)
+      setPingTimes((prev) => [`${duration} ms`, ...prev])
     } catch (error) {
-      setPingStatus('Failed')
+      setPingTimes((prev) => [`Failed`, ...prev])
     }
+    setPingLoading(false)
   }
 
   const pingServerAndDb = async () => {
-    setDataStatus('...')
+    const timestamp = Date.now()
+    setNow(timestamp)
+    setLastAction(timestamp)
+    setHasAction(true)
+    setDbLoading(true)
     const start = performance.now()
 
     try {
@@ -50,38 +82,60 @@ function App() {
       const data = await dataRes.json()
       const elapsed = Math.round(performance.now() - start)
       console.log('User data:', data)
-      setDataStatus(`${elapsed} ms`)
+      setDbTimes((prev) => [`${elapsed} ms`, ...prev])
     } catch (error) {
-      setDataStatus('Failed')
+      setDbTimes((prev) => [`Failed`, ...prev])
     }
+    setDbLoading(false)
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center px-6">
-      <div className="space-y-6 w-full max-w-md">
+    <main className="min-h-screen bg-slate-50 text-slate-900 flex items-start justify-center px-6 pt-24">
+      <div className="space-y-6 w-full max-w-xl">
         <h1 className="text-4xl font-semibold tracking-tight text-center">
           Test backend response times
         </h1>
+        <p className="text-center text-slate-600 min-h-[1.5rem]">
+          {hasAction && lastAction !== null
+            ? `${formatElapsed(now - lastAction)} since last action`
+            : '\u00a0'}
+        </p>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="space-y-3">
             <button
               onClick={pingServer}
-              className="px-4 py-2 rounded-md bg-slate-900 text-white font-medium hover:bg-slate-700 transition"
+              className="w-full px-4 py-2 rounded-md bg-slate-900 text-white font-medium hover:bg-slate-800 transition cursor-pointer"
+              disabled={pingLoading}
             >
-              Ping Server
+              {pingLoading ? '...' : 'Ping Server'}
             </button>
-            <span className="text-slate-600 text-lg">{pingStatus}</span>
+            <div className="text-slate-700 text-sm leading-6 min-h-[5rem]">
+              {pingTimes.map((entry, idx) => (
+                <span key={idx}>
+                  {entry}
+                  <br />
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center justify-between gap-4">
+          <div className="space-y-3">
             <button
               onClick={pingServerAndDb}
-              className="px-4 py-2 rounded-md bg-slate-900 text-white font-medium hover:bg-slate-700 transition"
+              className="w-full px-4 py-2 rounded-md bg-slate-900 text-white font-medium hover:bg-slate-800 transition cursor-pointer"
+              disabled={dbLoading}
             >
-              Ping Server + DB
+              {dbLoading ? '...' : 'Ping Server + DB'}
             </button>
-            <span className="text-slate-600 text-lg">{dataStatus}</span>
+            <div className="text-slate-700 text-sm leading-6 min-h-[5rem]">
+              {dbTimes.map((entry, idx) => (
+                <span key={idx}>
+                  {entry}
+                  <br />
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
