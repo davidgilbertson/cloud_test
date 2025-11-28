@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react'
 import './index.css'
 
+let host = document.location.hostname
+if (host.endsWith('.web.app')) {
+  host = 'Firebase'
+} else if (host.endsWith('.workers.dev')) {
+  host = 'Cloudflare'
+}
+document.title += ` (${host})`
+
 function App() {
   const [userId, setUserId] = useState('')
   const [pingTimes, setPingTimes] = useState([])
@@ -89,19 +97,13 @@ function App() {
     setDbLoading(false)
   }
 
-  let origin = document.location.origin
-  if (origin.endsWith('.web.app')) {
-    origin = 'Firebase'
-  } else if (origin.endsWith('.workers.dev')) {
-    origin = 'Cloudflare'
-  }
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 flex items-start justify-center px-6 pt-24">
       <div className="space-y-6 w-full max-w-xl">
         <h1 className="text-4xl font-semibold tracking-tight text-center">
           Test backend response times
         </h1>
-        <p className="text-center text-slate-600">Served from {origin}</p>
+        <p className="text-center text-slate-600">Served from {host}</p>
     
         <p className="text-center text-slate-600 min-h-[1.5rem]">
           {hasAction && lastAction !== null
