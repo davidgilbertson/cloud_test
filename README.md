@@ -11,8 +11,6 @@ Firebase URL: https://dgcloudtest.web.app
 
 Shared frontend source in `src/`. `index.html` is in the root, so Vite Just Works.
 
-# Build
-
 # Dev
 
 ## Emulating Cloudflare
@@ -22,3 +20,9 @@ Shared frontend source in `src/`. `index.html` is in the root, so Vite Just Work
 ## Emulating Firebase
 
 `npm run dev:fb` builds the functions and frontend code, then runs the Firebase emulator
+
+# Deploy
+
+Use the `npm run deploy:*` scripts.
+
+For Firebase, predeploy scripts in `firebase.json` run a build
