@@ -42,6 +42,5 @@ jobs:
       - name: Build frontend and functions
         run: npm run build:fb
       - name: Deploy Hosting and Functions
-        env:
-          FIREBASE_TOKEN: ${{ steps.auth.outputs.access_token }}
         run: firebase deploy --only hosting,functions --project "$PROJECT_ID"
+
