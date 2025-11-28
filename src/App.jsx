@@ -89,13 +89,12 @@ function App() {
     setDbLoading(false)
   }
 
-  const origin = document.location.origin
+  let origin = document.location.origin
   if (origin.endsWith('.web.app')) {
     origin = 'Firebase'
   } else if (origin.endsWith('.workers.dev')) {
     origin = 'Cloudflare'
   }
-  console.log('Version 2');
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 flex items-start justify-center px-6 pt-24">
       <div className="space-y-6 w-full max-w-xl">

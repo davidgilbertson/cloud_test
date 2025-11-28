@@ -25,4 +25,4 @@ Shared frontend source in `src/`. `index.html` is in the root, so Vite Just Work
 
 Use the `npm run deploy:*` scripts.
 
-For Firebase, predeploy scripts in `firebase.json` run a build
+For Firebase, predeploy scripts in `firebase.json` run a build.
