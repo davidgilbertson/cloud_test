@@ -39,8 +39,5 @@ jobs:
         run: npm ci
       - name: Install functions dependencies
         run: npm ci --prefix functions
-      - name: Build frontend and functions
-        run: npm run build:fb
       - name: Deploy Hosting and Functions
         run: firebase deploy --only hosting,functions --project "$PROJECT_ID"
-
