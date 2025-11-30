@@ -11,8 +11,6 @@ initializeApp();
 const db = getFirestore();
 
 export const api = onRequest(async (req, res) => {
-  logger.info("req.path", req.path);
-
   if (req.path.startsWith("/api/ping")) {
     logger.info("Ping request received");
     res.json({ message: "Ping successful", receivedAt: Date.now() });
@@ -34,24 +32,36 @@ export const api = onRequest(async (req, res) => {
 
     const userData = await db.runTransaction(async (t) => {
       const snapshot = await t.get(userDocRef);
-      if (!snapshot.exists) {
-        const initialData = {
-          dateCreated: new Date().toISOString(),
-          count: 1,
-        };
-        t.set(userDocRef, initialData);
-        return initialData;
-      }
-
-      const data = (snapshot.data() ?? {}) as {
-        count?: unknown;
+      const existingData = (snapshot.data() ?? {}) as {
+        lastAccess?: unknown;
+        dateCreated?: unknown;
         [key: string]: unknown;
       };
-      const currentCount = typeof data.count === "number" ? data.count : 0;
-      const updatedCount = currentCount + 1;
 
-      t.update(userDocRef, { count: updatedCount });
-      return { ...data, count: updatedCount };
+      const now = new Date().toISOString();
+      const previousLastAccess =
+        snapshot.exists && typeof existingData.lastAccess === "string"
+          ? existingData.lastAccess
+          : now;
+
+      const dateCreated =
+        snapshot.exists && typeof existingData.dateCreated === "string"
+          ? existingData.dateCreated
+          : now;
+
+      if (!snapshot.exists) {
+        t.set(userDocRef, {
+          dateCreated,
+          lastAccess: now,
+        });
+      } else {
+        t.update(userDocRef, { lastAccess: now });
+      }
+
+      return {
+        dateCreated,
+        lastAccess: previousLastAccess,
+      };
     });
 
     const elapsedMs = Date.now() - start;
