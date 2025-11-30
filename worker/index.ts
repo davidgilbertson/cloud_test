@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 
-type StoredData = { dateCreated: string; count: number };
+type StoredData = { dateCreated: string; lastAccess: string };
 
 export class UserData extends DurableObject {
   private data!: StoredData;
@@ -14,9 +14,10 @@ export class UserData extends DurableObject {
         return;
       }
 
+      const now = new Date().toISOString();
       const initial: StoredData = {
-        dateCreated: new Date().toISOString(),
-        count: 0,
+        dateCreated: now,
+        lastAccess: now,
       };
 
       await this.ctx.storage.put("data", initial);
@@ -25,9 +26,16 @@ export class UserData extends DurableObject {
   }
 
   async getData(): Promise<StoredData> {
-    this.data.count += 1;
+    const now = new Date().toISOString();
+    const previousLastAccess = this.data.lastAccess ?? now;
+
+    this.data.lastAccess = now;
     await this.ctx.storage.put("data", this.data);
-    return this.data;
+
+    return {
+      dateCreated: this.data.dateCreated,
+      lastAccess: previousLastAccess,
+    };
   }
 }
 
