@@ -2,7 +2,8 @@ import { setGlobalOptions } from "firebase-functions";
 import { onRequest } from "firebase-functions/https";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import * as logger from "firebase-functions/logger";
+
+type StoredData = { dateCreated: string; lastWrite: string };
 
 // This means that with heavy load, performance suffers rather than my bank account
 setGlobalOptions({ maxInstances: 5 });
@@ -10,59 +11,71 @@ setGlobalOptions({ maxInstances: 5 });
 initializeApp();
 const db = getFirestore();
 
-export const api = onRequest(async (req, res) => {
+async function readUserData(userId: string): Promise<StoredData> {
+  const userDocRef = db.collection("users").doc(userId);
+
+  return db.runTransaction(async (t) => {
+    const snapshot = await t.get(userDocRef);
+    const existingData = (snapshot.data() ?? {}) as {
+      lastWrite?: unknown;
+      dateCreated?: unknown;
+      [key: string]: unknown;
+    };
+
+    const now = new Date().toISOString();
+    const dateCreated =
+      snapshot.exists && typeof existingData.dateCreated === "string"
+        ? existingData.dateCreated
+        : now;
+
+    const lastWrite =
+      snapshot.exists && typeof existingData.lastWrite === "string"
+        ? existingData.lastWrite
+        : now;
+
+    if (!snapshot.exists) {
+      t.set(userDocRef, { dateCreated, lastWrite });
+    }
+
+    return { dateCreated, lastWrite };
+  });
+}
+
+async function writeUserData(userId: string): Promise<StoredData> {
+  const userDocRef = db.collection("users").doc(userId);
+  const now = new Date().toISOString();
+  const initial: StoredData = { dateCreated: now, lastWrite: now };
+
+  await userDocRef.set(initial, { mergeFields: ["lastWrite"] });
+
+  const snapshot = await userDocRef.get();
+  const data = (snapshot.data() ?? {}) as Partial<StoredData>;
+
+  return {
+    dateCreated: data.dateCreated ?? initial.dateCreated,
+    lastWrite: data.lastWrite ?? initial.lastWrite,
+  };
+}
+
+export const api = onRequest(async (req, res): Promise<void> => {
   if (req.path.startsWith("/api/ping")) {
-    logger.info("Ping request received");
-    res.json({ message: "Ping successful", receivedAt: Date.now() });
+    res.json({ message: "Ping successful" });
     return;
   }
 
-  if (req.path.startsWith("/api/data")) {
+  if (req.path.startsWith("/api/db-")) {
     const start = Date.now();
-    const body = req.body as { userId?: unknown } | undefined;
-    const userId = typeof body?.userId === "string" ? body.userId : null;
+    const userId = req.query.userId as string;
 
-    if (!userId) {
-      res.status(400).json({ error: "userId is required" });
+    let userData: StoredData;
+    if (req.path.startsWith("/api/db-read")) {
+      userData = await readUserData(userId);
+    } else if (req.path.startsWith("/api/db-write")) {
+      userData = await writeUserData(userId);
+    } else {
+      res.status(404).json({ error: "Not found" });
       return;
     }
-
-    logger.info("Data request received", { userId });
-    const userDocRef = db.collection("users").doc(userId);
-
-    const userData = await db.runTransaction(async (t) => {
-      const snapshot = await t.get(userDocRef);
-      const existingData = (snapshot.data() ?? {}) as {
-        lastAccess?: unknown;
-        dateCreated?: unknown;
-        [key: string]: unknown;
-      };
-
-      const now = new Date().toISOString();
-      const previousLastAccess =
-        snapshot.exists && typeof existingData.lastAccess === "string"
-          ? existingData.lastAccess
-          : now;
-
-      const dateCreated =
-        snapshot.exists && typeof existingData.dateCreated === "string"
-          ? existingData.dateCreated
-          : now;
-
-      if (!snapshot.exists) {
-        t.set(userDocRef, {
-          dateCreated,
-          lastAccess: now,
-        });
-      } else {
-        t.update(userDocRef, { lastAccess: now });
-      }
-
-      return {
-        dateCreated,
-        lastAccess: previousLastAccess,
-      };
-    });
 
     const elapsedMs = Date.now() - start;
 
@@ -71,4 +84,5 @@ export const api = onRequest(async (req, res) => {
   }
 
   res.status(404).json({ error: "Not found" });
+  return;
 });

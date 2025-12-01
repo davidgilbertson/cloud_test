@@ -13,11 +13,22 @@ Shared frontend source in `src/`. `index.html` is in the root, so Vite Just Work
 
 # Dev
 
-## Emulating Cloudflare
+## Cloudflare
 
 `npm run dev:cf` uses Vite (with the Cloudflare plugin) to serve the site and the Workers.
 
-## Emulating Firebase
+After changing `wrangler.jsonc`, run `npx wrangler types` to generate TypeScript type definitions.
+
+To create the D1 database locally, run:
+
+```
+npx wrangler d1 execute user-d1-db --local --file=worker/userDbSchema.sql
+```
+
+Note that this creates a DB (a `.sqlite` file in `.wrangler/state`) that matches the name/ID in `wrangler.jsonc`,
+which must also exist in the production environment.
+
+## Firebase
 
 `npm run dev:fb` builds the functions and frontend code, then runs the Firebase emulator
 

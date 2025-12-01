@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS Users;
+CREATE TABLE IF NOT EXISTS Users (
+  userId TEXT PRIMARY KEY,
+  dateCreated DATETIME,
+  lastWrite DATETIME
+);
