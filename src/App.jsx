@@ -4,7 +4,7 @@ import './index.css'
 let host = document.location.hostname
 if (host.endsWith('.web.app')) {
   host = 'Firebase'
-} else if (host.endsWith('.workers.dev')) {
+} else if (host.endsWith('cloudtest.dgapps.io')) {
   host = 'Cloudflare'
 }
 document.title += ` (${host})`

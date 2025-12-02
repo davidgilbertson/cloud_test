@@ -1,32 +1,36 @@
 {
-	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "cloudtest",
-	"main": "worker/index.ts",
-	"compatibility_date": "2025-11-18",
-	"assets": {
-		"not_found_handling": "single-page-application"
-	},
-	"durable_objects": {
-		"bindings": [
-			{
-				"name": "USER_DATA_DO",
-				"class_name": "UserData"
-			}
-		]
-	},
-	"migrations": [
-		{
-			"tag": "001-add-user-data-do",
-			"new_sqlite_classes": [
-				"UserData"
-			]
-		}
-	],
-	"d1_databases": [
-		{
-			"binding": "userDb",
-			"database_name": "user-d1-db",
-			"database_id": "f67f0725-1a63-4dcc-8a53-2676aff43978"
-		}
-	]
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "cloudtest",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-11-18",
+  "assets": {
+    "not_found_handling": "single-page-application"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "USER_DATA_DO",
+        "class_name": "UserData"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "001-add-user-data-do",
+      "new_sqlite_classes": ["UserData"]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "userDb",
+      "database_name": "user-d1-db",
+      "database_id": "f67f0725-1a63-4dcc-8a53-2676aff43978"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "cloudtest.dgapps.io",
+      "custom_domain": true
+    }
+  ]
 }

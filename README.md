@@ -1,23 +1,25 @@
-A repo to test Cloudflare and Firebase, including:
+A repo to test Cloudflare and Firebase. This is deployed to both and can be access at:
 
-- Page load time
-- Cold start time
-- DB operation times
-
-Cloudflare URL: https://cloudtest.gilbertson-david.workers.dev
-Firebase URL: https://dgcloudtest.web.app
+- Cloudflare URL: https://cloudtest.dgapps.io
+- Firebase URL: https://dgcloudtest.web.app
 
 # Frontend
 
 Shared frontend source in `src/`. `index.html` is in the root, so Vite Just Works.
 
-# Dev
+# Backend
+
+`/functions` contains the Fireabse Cloud Function code.
+
+`/worker` contains the Cloudflare Worker code.
+
+# Development
 
 ## Cloudflare
 
 `npm run dev:cf` uses Vite (with the Cloudflare plugin) to serve the site and the Workers.
 
-After changing `wrangler.jsonc`, run `npx wrangler types` to generate TypeScript type definitions.
+After changing `wrangler.jsonc`, run `npx wrangler types` to (re)generate TypeScript type definitions.
 
 To create the D1 database locally, run:
 
@@ -32,7 +34,7 @@ which must also exist in the production environment.
 
 `npm run dev:fb` builds the functions and frontend code, then runs the Firebase emulator
 
-# Deploy
+# Deployment
 
 Use the `npm run deploy:*` scripts.
 

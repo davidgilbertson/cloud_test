@@ -54,7 +54,7 @@ async function readD1UserData(
 async function writeD1UserData(env: Env, userId: string): Promise<StoredData> {
   const now = new Date().toISOString();
 
-  const [, , selectResult] = await env.userDb.batch([
+  const [, , selectResult] = await env.userDb.batch<StoredData>([
     env.userDb
       .prepare(
         "INSERT OR IGNORE INTO Users (userId, dateCreated, lastWrite) VALUES (?, ?, ?)"
@@ -68,7 +68,7 @@ async function writeD1UserData(env: Env, userId: string): Promise<StoredData> {
       .bind(userId),
   ]);
 
-  return selectResult.results[0] as StoredData;
+  return selectResult.results[0];
 }
 
 export default {
