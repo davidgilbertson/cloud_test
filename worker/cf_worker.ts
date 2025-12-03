@@ -74,7 +74,6 @@ async function writeD1UserData(env: Env, userId: string): Promise<StoredData> {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-
     if (url.pathname.startsWith("/api/ping")) {
       return Response.json({ message: "Ping successful" });
     }
@@ -127,6 +126,22 @@ export default {
       return Response.json({ data: userData, elapsedMs });
     }
 
+    // WebSocket
+    if (url.pathname.startsWith("/ws")) {
+      if (request.headers.get("upgrade") !== "websocket") {
+        return new Response("Expected a web socket request", { status: 400 });
+      }
+
+      const [client, server] = Object.values(new WebSocketPair());
+
+      server.accept();
+
+      server.addEventListener("message", (event) => {
+        server.send(`I got your message '${event.data}'`);
+      });
+
+      return new Response(null, { status: 101, webSocket: client });
+    }
     return new Response(null, { status: 404 });
   },
 };

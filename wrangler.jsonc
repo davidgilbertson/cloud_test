@@ -1,10 +1,11 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "cloudtest",
-  "main": "worker/index.ts",
+  "main": "worker/cf_worker.ts",
   "compatibility_date": "2025-11-18",
   "assets": {
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/ws"]
   },
   "durable_objects": {
     "bindings": [
@@ -32,5 +33,9 @@
       "pattern": "cloudtest.dgapps.io",
       "custom_domain": true
     }
-  ]
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
+  }
 }
