@@ -13,12 +13,12 @@ if (host.endsWith(".web.app")) {
 let webSocket;
 let db;
 
+// Cloudflare or local
 if (host !== "Firebase") {
-  // CF or local
   webSocket = new WebSocket("/ws");
 }
+// Firebase or local
 if (host !== "Cloudflare") {
-  // FB or local
   // Initialize Firebase
   const app = initializeApp({
     apiKey: "AIzaSyDWtHB73KJVVnX8nvEMSEMWBl52P4xfzLA",
@@ -46,7 +46,6 @@ const readFirestoreDirect = async (userId) => {
 
   const start = performance.now();
   const userData = (await getDoc(doc(db, "users", userId))).data();
-  console.log("userData", userData);
   return Math.round(performance.now() - start);
 };
 
