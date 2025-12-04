@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { initializeApp } from "firebase/app";
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import "./index.css";
 
 let host = document.location.hostname;
@@ -7,15 +9,63 @@ if (host.endsWith(".web.app")) {
 } else if (host.endsWith("cloudtest.dgapps.io")) {
   host = "Cloudflare";
 }
-document.title += ` (${host})`;
 
-const webSocket = new WebSocket("/ws");
+let webSocket;
+let db;
+
+if (host !== "Firebase") {
+  // CF or local
+  webSocket = new WebSocket("/ws");
+}
+if (host !== "Cloudflare") {
+  // FB or local
+  // Initialize Firebase
+  const app = initializeApp({
+    apiKey: "AIzaSyDWtHB73KJVVnX8nvEMSEMWBl52P4xfzLA",
+    authDomain: "dgcloudtest.firebaseapp.com",
+    projectId: "dgcloudtest",
+    storageBucket: "dgcloudtest.firebasestorage.app",
+    messagingSenderId: "981863157044",
+    appId: "1:981863157044:web:9e073059d59d5de003e961",
+  });
+  db = getFirestore(app);
+}
+
+document.title += ` (${host})`;
 
 const measureRequest = async (url) => {
   const start = performance.now();
   const res = await fetch(url);
   if (!res.ok) throw new Error("Request failed");
   await res.text();
+  return Math.round(performance.now() - start);
+};
+
+const readFirestoreDirect = async (userId) => {
+  if (!userId) throw new Error("Missing user id");
+
+  const start = performance.now();
+  const userData = (await getDoc(doc(db, "users", userId))).data();
+  console.log("userData", userData);
+  return Math.round(performance.now() - start);
+};
+
+const writeFirestoreDirect = async (userId) => {
+  if (!userId) throw new Error("Missing user id");
+
+  const start = performance.now();
+  const userDocRef = doc(db, "users", userId);
+  const now = new Date().toISOString();
+
+  await setDoc(
+    userDocRef,
+    {
+      dateCreated: now,
+      lastWrite: now,
+    },
+    { mergeFields: ["lastWrite"] }
+  );
+
   return Math.round(performance.now() - start);
 };
 
@@ -40,7 +90,7 @@ function Row({ label, url, onRun }) {
     <div className="flex flex-col sm:flex-row sm:items-center gap-3">
       <button
         onClick={run}
-        className="sm:w-48 w-full px-4 py-2 rounded-md bg-slate-900 text-white font-medium hover:bg-slate-800 transition cursor-pointer"
+        className="sm:w-56 w-full px-4 py-2 rounded-md bg-slate-900 text-white font-medium hover:bg-slate-800 transition cursor-pointer"
         disabled={loading}
       >
         {loading ? "..." : label}
@@ -114,12 +164,20 @@ function App() {
 
   const firebaseRequests = [
     {
-      label: "Firestore Read",
+      label: "Firestore Read (via server)",
       url: `/api/db-read?userId=${encodeURIComponent(userId)}`,
     },
     {
-      label: "Firestore Write",
+      label: "Firestore Write (via server)",
       url: `/api/db-write?userId=${encodeURIComponent(userId)}`,
+    },
+    {
+      label: "Firestore Read (direct)",
+      onRun: () => readFirestoreDirect(userId),
+    },
+    {
+      label: "Firestore Write (direct)",
+      onRun: () => writeFirestoreDirect(userId),
     },
   ];
 

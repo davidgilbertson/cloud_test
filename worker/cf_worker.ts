@@ -80,7 +80,6 @@ export default {
 
     //Durable Object read and write
     if (url.pathname.startsWith("/api/do-")) {
-      const start = Date.now();
       const userId = url.searchParams.get("userId");
 
       if (!userId) {
@@ -97,14 +96,11 @@ export default {
         throw Error(`Unknown URL ${url.pathname}`);
       }
 
-      const elapsedMs = Date.now() - start;
-
-      return Response.json({ data: userData, elapsedMs });
+      return Response.json({ data: userData });
     }
 
     // D1 read and write
     if (url.pathname.startsWith("/api/d1-")) {
-      const start = Date.now();
       const userId = url.searchParams.get("userId");
 
       if (!userId) {
@@ -121,9 +117,7 @@ export default {
         throw Error(`Unknown URL ${url.pathname}`);
       }
 
-      const elapsedMs = Date.now() - start;
-
-      return Response.json({ data: userData, elapsedMs });
+      return Response.json({ data: userData });
     }
 
     // WebSocket

@@ -11,34 +11,20 @@ setGlobalOptions({ maxInstances: 5 });
 initializeApp();
 const db = getFirestore();
 
-async function readUserData(userId: string): Promise<StoredData> {
+async function readUserData(userId: string): Promise<StoredData | null> {
   const userDocRef = db.collection("users").doc(userId);
+  const snapshot = await userDocRef.get();
+  if (!snapshot.exists) return null;
 
-  return db.runTransaction(async (t) => {
-    const snapshot = await t.get(userDocRef);
-    const existingData = (snapshot.data() ?? {}) as {
-      lastWrite?: unknown;
-      dateCreated?: unknown;
-      [key: string]: unknown;
-    };
+  const data = (snapshot.data() ?? {}) as Partial<StoredData>;
+  if (
+    typeof data.dateCreated !== "string" ||
+    typeof data.lastWrite !== "string"
+  ) {
+    return null;
+  }
 
-    const now = new Date().toISOString();
-    const dateCreated =
-      snapshot.exists && typeof existingData.dateCreated === "string"
-        ? existingData.dateCreated
-        : now;
-
-    const lastWrite =
-      snapshot.exists && typeof existingData.lastWrite === "string"
-        ? existingData.lastWrite
-        : now;
-
-    if (!snapshot.exists) {
-      t.set(userDocRef, { dateCreated, lastWrite });
-    }
-
-    return { dateCreated, lastWrite };
-  });
+  return { dateCreated: data.dateCreated, lastWrite: data.lastWrite };
 }
 
 async function writeUserData(userId: string): Promise<StoredData> {
@@ -64,10 +50,9 @@ export const api = onRequest(async (req, res): Promise<void> => {
   }
 
   if (req.path.startsWith("/api/db-")) {
-    const start = Date.now();
     const userId = req.query.userId as string;
 
-    let userData: StoredData;
+    let userData: StoredData | null;
     if (req.path.startsWith("/api/db-read")) {
       userData = await readUserData(userId);
     } else if (req.path.startsWith("/api/db-write")) {
@@ -77,9 +62,7 @@ export const api = onRequest(async (req, res): Promise<void> => {
       return;
     }
 
-    const elapsedMs = Date.now() - start;
-
-    res.json({ data: userData, elapsedMs });
+    res.json({ data: userData });
     return;
   }
 

@@ -8,10 +8,12 @@
     "build:fb": "npm --prefix functions run build && vite build",
     "dev:cf": "vite",
     "dev:fb": "npm run build:fb && firebase emulators:start --only hosting,functions,firestore",
+    "dev:fb:db": "firebase emulators:start --only functions,firestore",
     "deploy:cf": "npm run build:cf && wrangler deploy",
     "deploy:fb": "firebase deploy --only hosting,functions"
   },
   "dependencies": {
+    "firebase": "^12.6.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
