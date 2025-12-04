@@ -1,15 +1,15 @@
-A repo to test Cloudflare and Firebase. This is deployed to both and can be access at:
+A repo to test Cloudflare and Firebase. This is deployed to both and can be accessed at:
 
 - Cloudflare URL: https://cloudtest.dgapps.io
 - Firebase URL: https://dgcloudtest.web.app
 
 # Frontend
 
-Shared frontend source in `src/`. `index.html` is in the root, so Vite Just Works.
+Shared frontend source is in `src/`. `index.html` is in the root, so Vite Just Works.
 
 # Backend
 
-`/functions` contains the Fireabse Cloud Function code.
+`/functions` contains the Firebase Cloud Function code.
 
 `/worker` contains the Cloudflare Worker code.
 
@@ -32,7 +32,7 @@ which must also exist in the production environment.
 
 ## Firebase
 
-`npm run dev:fb` builds the functions and frontend code, then runs the Firebase emulator
+`npm run dev:fb` builds the functions and frontend code, then runs the Firebase emulator.
 
 # Deployment
 
